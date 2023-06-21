@@ -22,7 +22,7 @@ setup(
     ],
     packages=["selfmodifai"],
     include_package_data=True,
-    install_requires=["openai", "transformers"],
+    install_requires=["openai", "transformers", "torch", "datasets"],
     entry_points={
         "console_scripts": [
             "selfmodifai=selfmodifai.__main__:main",
