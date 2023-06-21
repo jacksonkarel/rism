@@ -7,7 +7,12 @@ def update_messages(content, role, messages, messages_file):
     with open(messages_file, 'w') as outfile:
         json.dump(messages, outfile)
 
-    print(f"Step: {content}")
+    step = f"Step: {content}"
+    print(step)
+    
+    with open('logs.txt', 'a') as f:
+        f.write(step)
+
     return messages
 
 def format_nbl(non_bash_languages):
