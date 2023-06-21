@@ -8,8 +8,16 @@ from selfmodifai.handle_too_long_context import handle_too_long_context
 from selfmodifai.helpers import update_messages, format_nbl, detect_non_bash_code
 
 def gpt4_agent(messages_path):
-    openai.api_key = os.environ("OPENAI_API_KEY")
+    openai.api_key = os.environ.get("OPENAI_API_KEY")
     
+    if messages_path == "new_os_messages.json":
+        os.system("mv new_os_messages.json messages.json")
+    
+    else:
+        os.remove("new_os_messages.json")
+
+    messages_path = "messages.json"
+
     with open(messages_path) as json_file:
         messages = json.load(json_file)
 
