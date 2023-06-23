@@ -1,7 +1,7 @@
-from selfmodifai.cli_parser import cli_parser
+from selfmodifai.gpt4_agent import gpt4_agent
 
 def main():    
-    cli_parser()
+    gpt4_agent()
 
 if __name__ == "__main__":
     main()

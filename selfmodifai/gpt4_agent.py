@@ -7,7 +7,7 @@ from openai.error import InvalidRequestError
 from selfmodifai.handle_too_long_context import handle_too_long_context
 from selfmodifai.helpers import update_messages, format_nbl, detect_non_bash_code
 
-def gpt4_agent(messages_path):
+def gpt4_agent():
     openai.api_key = os.environ.get("OPENAI_API_KEY")
 
     messages_path = "messages.json"
@@ -62,7 +62,7 @@ def gpt4_agent(messages_path):
 
 
             if len(content) > 3900:
-                content = "That file is too long to send to you. I only want to send you less than 6000 tokens. Write bash commands to extract the contents from it in smaller chunks."
+                content = "That file is too long to send to you. I only want to send you 25 lines of code at a time. Write bash commands to extract the contents from it in smaller chunks."
 
             elif non_bash_languages:
                 nbl_str = format_nbl(non_bash_languages)
@@ -88,7 +88,7 @@ def gpt4_agent(messages_path):
                 content = bash_response
 
             else:
-                content = "My goal is to improve the model architecture of Alpaca-LoRA to make it a more powerful language model. Find the answer to that question in that context. If you can't, try another step in improving the language model."
+                content = "My goal is to improve the model architecture of Alpaca-LoRA to make it a more powerful language model, without just making the model larger. Find the answer to that question in that context. If you can't, try another step in improving the language model."
 
 
         messages = update_messages(content, "user", messages, messages_path)
