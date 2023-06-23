@@ -9,12 +9,6 @@ from selfmodifai.helpers import update_messages, format_nbl, detect_non_bash_cod
 
 def gpt4_agent(messages_path):
     openai.api_key = os.environ.get("OPENAI_API_KEY")
-    
-    if messages_path == "new_os_messages.json":
-        os.system("mv new_os_messages.json messages.json")
-    
-    else:
-        os.remove("new_os_messages.json")
 
     messages_path = "messages.json"
 
@@ -56,13 +50,21 @@ def gpt4_agent(messages_path):
             content = ""
         # matches is now a list of all bash commands in the string
             for bash_command in bash_matches:
+
+                if bash_command.startswith('cd '):
+                    os.chdir(bash_command[3:])
+                    continue
+
                 content += f"{bash_command}:\n"
                 stream = os.popen(bash_command)
 
                 content += stream.read()
 
 
-            if non_bash_languages:
+            if len(content) > 3900:
+                content = "That file is too long to send to you. I only want to send you less than 6000 tokens. Write bash commands to extract the contents from it in smaller chunks."
+
+            elif non_bash_languages:
                 nbl_str = format_nbl(non_bash_languages)
 
                 content += f"Those are the outputs from those bash commands. Can you write bash commands to implement the {nbl_str} code?"
