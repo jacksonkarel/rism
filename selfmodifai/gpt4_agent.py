@@ -5,7 +5,7 @@ from transformers import pipeline
 import openai
 from openai.error import InvalidRequestError
 from selfmodifai.handle_too_long_context import handle_too_long_context
-from selfmodifai.helpers import update_messages, format_nbl, detect_non_bash_code
+from selfmodifai.helpers import update_messages, format_nbl, detect_non_bash_code, conv_history_to_str
 
 def gpt4_agent():
     openai.api_key = os.environ.get("OPENAI_API_KEY")
@@ -85,7 +85,19 @@ def gpt4_agent():
             results = classifier(sequences=response_content, candidate_labels=labels, hypothesis_template="This text is a {}")
 
             if results["labels"][0] == "suggestion for what to do next":
-                content = bash_response
+                full_context = "This is a conversation between you and an language model-powered AI agent:\n"
+                full_context = conv_history_to_str(messages, full_context, user_name="you", assistant_name="AI agent")
+                full_context = f"{full_context}\n\n Write a message to the agent directing them to do what they are trying to help us do. They will accomplish their task by writing bash commands that our computer will execute."
+
+                mananager_agent_messages = [{"role": "system", "content": "You are trying to help an AI agent improve the language model Alpaca-LoRA."}, {"role": "user", "content": full_context}]
+
+                manager_response = openai.ChatCompletion.create(
+                model="gpt-4",
+                messages=mananager_agent_messages
+                )
+
+                content = manager_response["choices"][0]["message"]["content"]
+
 
             else:
                 content = "My goal is to improve the model architecture of Alpaca-LoRA to make it a more powerful language model, without just making the model larger. Find the answer to that question in that context. If you can't, try another step in improving the language model."

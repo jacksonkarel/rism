@@ -52,3 +52,17 @@ def detect_non_bash_code(chatgpt_output):
             non_bash_languages.append(language)
 
     return non_bash_languages
+
+def conv_history_to_str(messages, full_context, user_name="user", assistant_name="assistant"):
+    for message in messages[1:]:
+        
+        if message["role"] == "user":
+            role = user_name
+        elif message["role"] == "assistant":
+            role = assistant_name
+            
+        content = message["content"]
+
+        full_context += (f"{role}: {content}\n\n")
+    
+    return full_context
