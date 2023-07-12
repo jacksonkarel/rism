@@ -10,7 +10,7 @@ from selfmodifai.helpers import update_messages, format_nbl, detect_non_bash_cod
 def gpt4_agent():
     openai.api_key = os.environ.get("OPENAI_API_KEY")
 
-    messages_path = "messages.json"
+    messages_path = "../selfmodifai/prompts/messages.json"
 
     with open(messages_path) as json_file:
         messages = json.load(json_file)

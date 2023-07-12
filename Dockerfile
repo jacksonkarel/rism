@@ -18,6 +18,4 @@ RUN git clone https://github.com/jacksonkarel/selfmodifai-alpaca-lora.git
 
 WORKDIR /selfmodifai/selfmodifai-alpaca-lora
 
-COPY prompts/messages.json messages.json
-
 CMD ["/bin/bash"]
