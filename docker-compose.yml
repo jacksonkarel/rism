@@ -1,0 +1,6 @@
+services:
+  selfmodifai:
+    build: .
+    environment:
+      - OPENAI_API_KEY
+      - SELFMODIFAI_GH_PAT
