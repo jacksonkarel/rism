@@ -34,6 +34,7 @@ def gpt4_agent():
                 # Re-raise the exception if it's not what we're looking for
                 raise e
 
+        print(response["usage"])
         response_content = response["choices"][0]["message"]["content"]
 
         messages = update_messages(response_content, "assistant", messages, messages_path)
