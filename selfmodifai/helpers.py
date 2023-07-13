@@ -1,5 +1,6 @@
 import re
 
+
 def format_nbl(non_bash_languages):
     if len(non_bash_languages) == 1:
         nbl_str = non_bash_languages[0].title()
@@ -21,9 +22,10 @@ def format_nbl(non_bash_languages):
 
     return nbl_str
 
+
 def detect_non_bash_code(chatgpt_output):
     # Pattern to match code blocks
-    pattern = r'```(\w+)\n(.*?)```'
+    pattern = r"```(\w+)\n(.*?)```"
 
     matches = re.findall(pattern, chatgpt_output, re.DOTALL)
 
@@ -33,7 +35,7 @@ def detect_non_bash_code(chatgpt_output):
         language = nb_match[0]
 
         # Check if the language is not bash
-        if language.lower() != 'bash':
+        if language.lower() != "bash":
             non_bash_languages.append(language)
 
     return non_bash_languages

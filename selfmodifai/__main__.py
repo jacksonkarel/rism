@@ -1,7 +1,9 @@
 from selfmodifai.gpt4_agent.gpt4_agent import gpt4_agent
 
-def main():    
+
+def main():
     gpt4_agent()
+
 
 if __name__ == "__main__":
     main()
