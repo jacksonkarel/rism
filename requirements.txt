@@ -2,3 +2,6 @@ openai
 transformers
 torch
 datasets
+black
+flake8
+pytype
