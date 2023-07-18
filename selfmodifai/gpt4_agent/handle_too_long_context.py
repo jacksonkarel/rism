@@ -18,20 +18,11 @@ def handle_too_long_context(messages):
 
     less_messages = [system_turn, {"role": "user", "content": full_context}]
 
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=less_messages,
-        )
-        less_messages = [system_turn, {"role": "assistant", "content": response["choices"][0]["message"]["content"]}]
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=less_messages,
+    )
 
-    except InvalidRequestError as e:
-        # Check if the error message matches the context length issue
-        if "maximum context length" in str(e):
-            response, less_messages = handle_too_long_context(messages)
-
-        else:
-            # Re-raise the exception if it's not what we're looking for
-            raise e
+    less_messages = [system_turn, {"role": "assistant", "content": response["choices"][0]["message"]["content"]}]
 
     return response, less_messages

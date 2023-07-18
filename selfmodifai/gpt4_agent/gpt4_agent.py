@@ -4,7 +4,6 @@ import json
 from transformers import pipeline
 import openai
 from openai.error import InvalidRequestError
-from selfmodifai.gpt4_agent.handle_too_long_context import handle_too_long_context
 from selfmodifai.helpers import format_nbl, detect_non_bash_code
 from selfmodifai.gpt4_agent.helpers import update_messages, conv_history_to_str, gpt_complete_summarization
 
@@ -18,16 +17,7 @@ def gpt4_agent():
         messages = json.load(json_file)
 
     while True:
-        try:
-            response = openai.ChatCompletion.create(model="gpt-4", messages=messages)
-        except InvalidRequestError as e:
-            # Check if the error message matches the context length issue
-            if "maximum context length" in str(e):
-                response, messages = gpt_complete_summarization(messages, messages_path)
-
-            else:
-                # Re-raise the exception if it's not what we're looking for
-                raise e
+        response = openai.ChatCompletion.create(model="gpt-4", messages=messages)
 
         if response["usage"]["total_tokens"] > 5900:
             response, messages = gpt_complete_summarization(messages, messages_path)
@@ -78,9 +68,14 @@ def gpt4_agent():
 
             else:
                 classifier = pipeline("zero-shot-classification")
-                labels = ["suggestion for what to do next", "inquisitive question", "asking somebody to do something"]
+                labels = [
+                    "a suggestion for what to do next",
+                    "an inquisitive question",
+                    "asking somebody to do something",
+                    "informative statements",
+                ]
                 results = classifier(
-                    sequences=response_content, candidate_labels=labels, hypothesis_template="This text is a {}"
+                    sequences=response_content, candidate_labels=labels, hypothesis_template="This text is {}"
                 )
 
                 if results["labels"][0] == "suggestion for what to do next":
@@ -101,6 +96,9 @@ def gpt4_agent():
                     manager_response = openai.ChatCompletion.create(model="gpt-4", messages=mananager_agent_messages)
 
                     content = manager_response["choices"][0]["message"]["content"]
+
+                elif results["labels"][0] == "informative statements":
+                    content = "Ok, thanks. What's next?"
 
                 else:
                     content = "My goal is to improve the model architecture of Alpaca-LoRA to make it a more powerful language model, without just making the model larger. Find the answer to that question in that context. If you can't, try another step in improving the language model."
