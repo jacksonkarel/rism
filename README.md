@@ -1,2 +1,2 @@
 # selfmodifai
-LLM-powered AI agents modifying the source code of other LLMs
+Autonomous AI agents modifying the training code of ML models
