@@ -1,5 +1,4 @@
 import openai
-from openai.error import InvalidRequestError
 from selfmodifai.gpt4_agent.helpers import conv_history_to_str
 
 
@@ -22,6 +21,9 @@ def handle_too_long_context(messages):
         model="gpt-4",
         messages=less_messages,
     )
+
+    print(response["choices"][0]["message"]["content"])
+    print(response["usage"]["total_tokens"])
 
     less_messages = [system_turn, {"role": "assistant", "content": response["choices"][0]["message"]["content"]}]
 

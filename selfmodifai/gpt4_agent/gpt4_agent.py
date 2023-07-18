@@ -3,7 +3,6 @@ import re
 import json
 from transformers import pipeline
 import openai
-from openai.error import InvalidRequestError
 from selfmodifai.helpers import format_nbl, detect_non_bash_code
 from selfmodifai.gpt4_agent.helpers import update_messages, conv_history_to_str, gpt_complete_summarization
 
@@ -18,6 +17,8 @@ def gpt4_agent():
 
     while True:
         response = openai.ChatCompletion.create(model="gpt-4", messages=messages)
+
+        print(response["usage"]["total_tokens"])
 
         if response["usage"]["total_tokens"] > 5900:
             response, messages = gpt_complete_summarization(messages, messages_path)
