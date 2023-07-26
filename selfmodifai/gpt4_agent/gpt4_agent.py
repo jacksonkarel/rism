@@ -104,7 +104,7 @@ class Gpt4Agent:
         mananager_agent_messages = [
             {
                 "role": "system",
-                "content": "You are trying to help an AI agent improve the language model Alpaca-LoRA.",
+                "content": self.system_prompt,
             },
             {"role": "user", "content": full_context},
         ]

@@ -1,7 +1,10 @@
+from git import Repo
 from selfmodifai.gpt4_agent.agents.gpt_4_training_editor_agent.gpt4_training_editor_agent import Gpt4TrainingEditorAgent
 
 
 def gpt4_te_alpaca_lora_agent():
+    Repo.clone_from("git@github.com:jacksonkarel/selfmodifai-alpaca-lora.git", "/selfmodifai")
+
     manager_data = {
         "a suggestion for what to do next": "",
         "an inquisitive question": "My goal is to improve the model architecture of Alpaca-LoRA to make it a more powerful language model, without just making the model larger. Find the answer to that question in that context. If you can't, try another step in improving the language model.",

@@ -14,8 +14,4 @@ RUN git clone https://github.com/jacksonkarel/selfmodifai
 
 RUN pip install ./selfmodifai
 
-RUN git clone https://github.com/jacksonkarel/selfmodifai-alpaca-lora.git
-
-WORKDIR /selfmodifai/selfmodifai-alpaca-lora
-
 CMD ["tail", "-f", "/dev/null"]
