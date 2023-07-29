@@ -1,9 +1,10 @@
-from git import Repo
+from selfmodifai.gpt4_agent.agents.gpt_4_training_editor_agent.agents.github_model_agent import GithubModelAgent
 from selfmodifai.gpt4_agent.agents.gpt_4_training_editor_agent.gpt4_training_editor_agent import Gpt4TrainingEditorAgent
 
 
-def gpt4_te_alpaca_lora_agent():
-    Repo.clone_from("git@github.com:jacksonkarel/selfmodifai-alpaca-lora.git", "/selfmodifai")
+def gpt4_te_alapca_lora_agent():
+    gh_repo = "git@github.com:jacksonkarel/selfmodifai-alpaca-lora.git"
+    dir_path = "/selfmodifai/selfmodifai-alpaca-lora"
 
     manager_data = {
         "a suggestion for what to do next": "",
@@ -11,9 +12,9 @@ def gpt4_te_alpaca_lora_agent():
         "asking somebody to do something": "",
         "informative statements": "Ok, thanks. What's next?",
     }
-    messages_path = "/selfmodifai/selfmodifai/prompts/messages.json"
+    messages_path = "/selfmodifai/selfmodifai/prompts/alpaca_lora/training_editor.json"
 
     system_prompt = "You are part of an agent that is modifying the code of the model Alpaca-LoRA. The agent is in the Alpaca-LoRA directory. When you write code, that code will be executed and the output will be sent back to you."
 
-    te_agent = Gpt4TrainingEditorAgent(manager_data, messages_path, system_prompt)
-    te_agent.run()
+    agent = GithubModelAgent(gh_repo, dir_path, manager_data, messages_path, system_prompt, Gpt4TrainingEditorAgent)
+    agent.run()
