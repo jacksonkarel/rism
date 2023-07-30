@@ -1,4 +1,4 @@
-from selfmodifai.falcon_40b_agent.falcon_40b_generate import falcon_40b_generate
+from selfmodifai.agents.hf_agent.falcon_40b_agent.falcon_40b_generate import falcon_40b_generate
 
 
 def falcon_40b_agent():

@@ -1,10 +1,8 @@
-from selfmodifai.gpt4_agent.agents.gpt_4_training_editor_agent.agents.gpt4_te_gpt2_agent import (
-    gpt4_te_gpt2_agent,
-)
+from selfmodifai.cli_parser import cli_parser
 
 
 def main():
-    gpt4_te_gpt2_agent()
+    cli_parser()
 
 
 if __name__ == "__main__":

@@ -2,10 +2,11 @@ services:
   selfmodifai:
     build: .
     environment:
-      - HF_TOKEN
+      - OPENAI_API_KEY
+      - SELFMODIFAI_GH_PAT
     volumes:
-      - model:/selfmodifai/model
+      - alpaca-lora:/selfmodifai/selfmodifai-alpaca-lora
       - prompts:/selfmodifai/prompts
 volumes:
-  model:
+  alpaca-lora:
   prompts:

@@ -1,7 +1,8 @@
 openai
 transformers
 torch
-datasets
+xformers
+accelerate
 black
 pytype
 GitPython

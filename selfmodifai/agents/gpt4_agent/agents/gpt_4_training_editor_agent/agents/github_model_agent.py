@@ -1,6 +1,5 @@
 import os
 from git import Repo
-from selfmodifai.gpt4_agent.agents.gpt_4_training_editor_agent.gpt4_training_editor_agent import Gpt4TrainingEditorAgent
 
 
 class GithubModelAgent:

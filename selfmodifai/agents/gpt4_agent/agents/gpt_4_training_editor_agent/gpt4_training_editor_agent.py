@@ -1,4 +1,4 @@
-from selfmodifai.gpt4_agent.gpt4_agent import Gpt4Agent
+from selfmodifai.agents.gpt4_agent.gpt4_agent import Gpt4Agent
 
 
 class Gpt4TrainingEditorAgent:
