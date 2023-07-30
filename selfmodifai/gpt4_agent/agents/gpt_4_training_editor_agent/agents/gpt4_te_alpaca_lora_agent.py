@@ -4,7 +4,6 @@ from selfmodifai.gpt4_agent.agents.gpt_4_training_editor_agent.gpt4_training_edi
 
 def gpt4_te_alapca_lora_agent():
     gh_repo = "git@github.com:jacksonkarel/selfmodifai-alpaca-lora.git"
-    dir_path = "/selfmodifai/selfmodifai-alpaca-lora"
 
     manager_data = {
         "a suggestion for what to do next": "",
@@ -16,5 +15,5 @@ def gpt4_te_alapca_lora_agent():
 
     system_prompt = "You are part of an agent that is modifying the code of the model Alpaca-LoRA. The agent is in the Alpaca-LoRA directory. When you write code, that code will be executed and the output will be sent back to you."
 
-    agent = GithubModelAgent(gh_repo, dir_path, manager_data, messages_path, system_prompt, Gpt4TrainingEditorAgent)
+    agent = GithubModelAgent(gh_repo, manager_data, messages_path, system_prompt, Gpt4TrainingEditorAgent)
     agent.run()

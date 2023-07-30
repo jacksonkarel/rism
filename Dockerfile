@@ -14,4 +14,6 @@ RUN git clone https://github.com/jacksonkarel/selfmodifai
 
 RUN pip install ./selfmodifai
 
+WORKDIR /selfmodifai/model
+
 CMD ["tail", "-f", "/dev/null"]

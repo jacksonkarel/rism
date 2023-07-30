@@ -5,7 +5,7 @@ services:
       - OPENAI_API_KEY
       - SELFMODIFAI_GH_PAT
     volumes:
-      - alpaca-lora:/selfmodifai/selfmodifai-alpaca-lora
+      - model:/selfmodifai/model
       - prompts:/selfmodifai/prompts
 volumes:
   alpaca-lora:
