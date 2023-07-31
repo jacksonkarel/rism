@@ -1,5 +1,5 @@
 import pathlib
-from setuptools import setup
+from setuptools import setup, find_packages
 
 HERE = pathlib.Path(__file__).parent
 
@@ -20,9 +20,9 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.8",
     ],
-    packages=["selfmodifai"],
+    packages=find_packages(),
     include_package_data=True,
-    install_requires=["openai", "transformers", "torch", "datasets"],
+    install_requires=["openai", "transformers", "torch", "xformers", "GitPython", "accelerate", "black", "pytype"],
     entry_points={
         "console_scripts": [
             "selfmodifai=selfmodifai.__main__:main",
