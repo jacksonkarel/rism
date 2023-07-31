@@ -22,7 +22,8 @@ setup(
     ],
     packages=find_packages(),
     include_package_data=True,
-    install_requires=["openai", "transformers", "torch", "xformers", "GitPython", "accelerate", "black", "pytype"],
+    install_requires=["openai", "transformers", "torch", "xformers", "accelerate", "GitPython", "black", "pytype"],
+    setup_requires=["torch"],
     entry_points={
         "console_scripts": [
             "selfmodifai=selfmodifai.__main__:main",
