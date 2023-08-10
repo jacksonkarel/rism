@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM python:3.8-slim-buster
+FROM huggingface/transformers-pytorch-gpu
 
 WORKDIR /selfmodifai
 

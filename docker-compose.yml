@@ -3,6 +3,7 @@ services:
     build: .
     environment:
       - HF_TOKEN
+      - LLAMA2_HF_ENDPOINT
     volumes:
       - model:/selfmodifai/model
       - prompts:/selfmodifai/prompts

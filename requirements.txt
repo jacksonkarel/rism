@@ -1,8 +1,6 @@
 openai
 transformers
 torch
-xformers
-accelerate
 black
 pytype
 GitPython
