@@ -1,8 +1,8 @@
-from selfmodifai.agents.hf_agent.llama2_agent.llama2_agent import llama2_agent
+from selfmodifai.cli_parser import cli_parser
 
 
 def main():
-    llama2_agent()
+    cli_parser()
 
 
 if __name__ == "__main__":

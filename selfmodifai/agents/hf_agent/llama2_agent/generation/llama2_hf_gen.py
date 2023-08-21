@@ -4,7 +4,12 @@ import requests
 
 
 def llama2_hf_gen():
-    data = {"inputs": "What's the algorithm behind GPT-2?"}
+    data = {
+        "inputs": "What's the algorithm behind GPT-2?",
+        "parameters": {
+            "max_new_tokens": 2048,
+        },
+    }
     HF_TOKEN = os.environ.get("HF_TOKEN")
     headers = {"Authorization": f"Bearer {HF_TOKEN}", "Content-Type": "application/json"}
 
