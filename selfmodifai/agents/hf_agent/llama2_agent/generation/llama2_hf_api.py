@@ -1,9 +1,11 @@
+import os
 import requests
 
 
 def llama2_hf_api():
+    HF_TOKEN = os.environ.get("HF_TOKEN")
     API_URL = "https://api-inference.huggingface.co/models/meta-llama/Llama-2-7b-chat-hf"
-    headers = {"Authorization": "Bearer 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"}
+    headers = {"Authorization": f"Bearer {HF_TOKEN}"}
 
     def query(payload):
         response = requests.post(API_URL, headers=headers, json=payload)
