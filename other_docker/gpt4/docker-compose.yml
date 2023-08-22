@@ -1,6 +1,9 @@
 services:
-  selfmodifai:
-    build: .
+  selfmodifai-gpt4:
+    build:
+      context: ../../
+      dockerfile: Dockerfile
+    image: selfmodifai-gpt4
     environment:
       - OPENAI_API_KEY
       - SELFMODIFAI_GH_PAT

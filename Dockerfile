@@ -4,6 +4,12 @@ FROM python:3.8-slim-buster
 
 WORKDIR /selfmodifai
 
+RUN apt-get -y update
+
+RUN apt-get -y upgrade
+
+RUN apt-get -y install git
+
 COPY requirements.txt selfmodifai/requirements.txt
 
 COPY setup.py selfmodifai/setup.py

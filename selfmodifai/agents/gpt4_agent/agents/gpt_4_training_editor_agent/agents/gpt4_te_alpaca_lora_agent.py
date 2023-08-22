@@ -5,7 +5,7 @@ from selfmodifai.agents.gpt4_agent.agents.gpt_4_training_editor_agent.gpt4_train
 
 
 def gpt4_te_alapca_lora_agent():
-    gh_repo = "git@github.com:jacksonkarel/selfmodifai-alpaca-lora.git"
+    gh_repo = "https://github.com/jacksonkarel/selfmodifai-alpaca-lora.git"
 
     manager_data = {
         "a suggestion for what to do next": "",
