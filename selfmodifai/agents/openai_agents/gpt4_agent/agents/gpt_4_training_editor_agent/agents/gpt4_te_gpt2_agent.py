@@ -1,5 +1,7 @@
-from selfmodifai.agents.gpt4_agent.agents.gpt_4_training_editor_agent.agents.github_model_agent import GithubModelAgent
-from selfmodifai.agents.gpt4_agent.agents.gpt_4_training_editor_agent.gpt4_training_editor_agent import (
+from selfmodifai.agents.openai_agents.gpt4_agent.agents.gpt_4_training_editor_agent.agents.github_model_agent import (
+    GithubModelAgent,
+)
+from selfmodifai.agents.openai_agents.gpt4_agent.agents.gpt_4_training_editor_agent.gpt4_training_editor_agent import (
     Gpt4TrainingEditorAgent,
 )
 

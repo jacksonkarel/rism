@@ -4,6 +4,7 @@ import json
 from transformers import pipeline
 import openai
 from selfmodifai.helpers import format_nbl, detect_non_bash_code
+from selfmodifai.agents.openai_agents.helpers import conv_history_to_str, update_messages
 
 
 class Gpt4Agent:
@@ -31,7 +32,7 @@ class Gpt4Agent:
             else:
                 response_content = response["choices"][0]["message"]["content"]
 
-                messages = self.update_messages(response_content, "assistant", messages, messages_path)
+                messages = update_messages(response_content, "assistant", messages, messages_path)
 
                 # Define the regular expression pattern
                 pattern = r"```bash\n(.*?)\n```"
@@ -94,11 +95,11 @@ class Gpt4Agent:
                 else:
                     content = bash_response
 
-                messages = self.update_messages(content, "user", messages, messages_path)
+                messages = update_messages(content, "user", messages, messages_path)
 
     def gpt4_suggestion(self, messages):
         full_context = "This is a conversation between you and a language model-powered AI agent:\n"
-        full_context = self.conv_history_to_str(messages, full_context, user_name="you", assistant_name="AI agent")
+        full_context = conv_history_to_str(messages, full_context, user_name="you", assistant_name="AI agent")
         full_context = f"{full_context}\n\n Write a message to the agent directing them to do what they are trying to help us do. They will accomplish their task by writing bash commands that our computer will execute."
 
         mananager_agent_messages = [
@@ -117,33 +118,6 @@ class Gpt4Agent:
 
         return content
 
-    def update_messages(self, content, role, messages, messages_file):
-        new_message = {"role": role, "content": content}
-        messages.append(new_message)
-        with open(messages_file, "w") as outfile:
-            json.dump(messages, outfile)
-
-        step = f"Step: {content}"
-        print(step)
-
-        with open("logs.txt", "a") as f:
-            f.write(step)
-
-        return messages
-
-    def conv_history_to_str(self, messages, full_context, user_name="user", assistant_name="assistant"):
-        for message in messages[1:]:
-            if message["role"] == "user":
-                role = user_name
-            elif message["role"] == "assistant":
-                role = assistant_name
-
-            content = message["content"]
-
-            full_context += f"{role}: {content}\n\n"
-
-        return full_context
-
     def gpt_complete_summarization(self, messages, messages_path, system_prompt):
         response, messages = self.handle_too_long_context(messages, system_prompt)
 
@@ -157,7 +131,7 @@ class Gpt4Agent:
         messages = messages[:-1]
         full_context = "Condense the information from the following past conversation between us. Keep all of the information that is relevant to the task at hand and future important tasks and remove all that is not. Keep information about the locations of newly created files that might be helpful for future tasks. Imagine a future person picking up where you left off based on this summary. Please by fairly detailed. The past conversation:\n"
 
-        full_context = self.conv_history_to_str(messages, full_context)
+        full_context = conv_history_to_str(messages, full_context)
 
         print(full_context)
         system_turn = {
