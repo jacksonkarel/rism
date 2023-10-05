@@ -22,6 +22,8 @@ COPY prompts selfmodifai/prompts
 
 RUN pip install ./selfmodifai 
 
-WORKDIR /selfmodifai/model
+RUN git clone https://github.com/jacksonkarel/selfmodifai-gpt-dev.git
+
+WORKDIR /selfmodifai/selfmodifai-gpt-dev
 
 CMD ["tail", "-f", "/dev/null"]

@@ -19,8 +19,10 @@ def open_source_agent():
     # print(output_list)
     output_str = "".join(output)
 
+    print(output_str)
+
     # training_file_path = "/selfmodifai/selfmodifai-gpt-dev/gpt_dev/train.py"
-    training_file_path = "../selfmodifai-gpt-dev/gpt_dev/train.py"
+    training_file_path = "gpt-dev/train.py"
 
     with open(training_file_path, "r") as f:
         training_file = f.read()
@@ -34,6 +36,9 @@ def open_source_agent():
     ]
     engineer_response = openai.ChatCompletion.create(model="gpt-4", messages=gpt_api_messages)
     engineer_response_content = engineer_response["choices"][0]["message"]["content"]
+
+    print(engineer_response_content)
+
     pattern = r"```python\n(.*?)\n```"
     er_search = re.search(pattern, engineer_response_content, re.DOTALL)
     if er_search:
