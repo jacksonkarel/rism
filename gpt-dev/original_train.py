@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
-from subword_tokenizer import subword_tokenizer
+from .subword_tokenizer import subword_tokenizer
 
 # data loading
 def get_batch(split, train_data, val_data, block_size, batch_size, device):
@@ -150,57 +150,58 @@ class BigramLanguageModel(nn.Module):
             idx = torch.cat((idx, idx_next), dim=1) # (B, T+1)
         return idx
 
-def get_config():
-    config = {
-        'batch_size': 16,
-        'block_size': 32,
-        'max_iters': 5000,
-        'eval_interval': 100,
-        'learning_rate': 1e-3,
-        'device': 'cuda' if torch.cuda.is_available() else 'cpu',
-        'eval_iters': 200,
-        'n_embd': 64,
-        'n_head': 4,
-        'n_layer': 4,
-        'dropout': 0.0
-    }
-    return config
+def train_gpt():
+    # hyperparameters
+    batch_size = 16 # how many independent sequences will we process in parallel?
+    block_size = 32 # what is the maximum context length for predictions?
+    max_iters = 5000
+    eval_interval = 100
+    learning_rate = 1e-3
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    eval_iters = 200
+    n_embd = 64
+    n_head = 4
+    n_layer = 4
+    dropout = 0.0
+    # ------------
 
-def prepare_data(file_path, encode_fn):
-    with open(file_path, 'r', encoding='utf-8') as f:
+    torch.manual_seed(1337)
+
+    encode, decode, vocab_size = subword_tokenizer()
+
+    with open('brittanica_clean.txt', 'r', encoding='utf-8') as f:
         text = f.read()
-    data = torch.tensor(encode_fn(text), dtype=torch.long)
-    n = int(0.9*len(data))
-    return data[:n], data[n:]
 
-def initialize_model(vocab_size, config):
-    model = BigramLanguageModel(vocab_size, config['n_embd'], config['block_size'],
-                                config['n_head'], config['n_layer'], config['dropout'])
-    model = model.to(config['device'])
-    print(f"{sum(p.numel() for p in model.parameters())/1e6} M parameters")
-    return model
+    # Train and test splits
+    data = torch.tensor(encode(text), dtype=torch.long)
+    n = int(0.9*len(data)) # first 90% will be train, rest val
+    train_data = data[:n]
+    val_data = data[n:]
+    model = BigramLanguageModel(vocab_size, n_embd, block_size, n_head, n_layer, dropout)
+    m = model.to(device)
+    # print the number of parameters in the model
+    print(sum(p.numel() for p in m.parameters())/1e6, 'M parameters')
 
-def initialize_optimizer(model, learning_rate):
-    return torch.optim.AdamW(model.parameters(), lr=learning_rate)
+    # create a PyTorch optimizer
+    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
 
-def train_model(model, optimizer, train_data, val_data, config):
-    for iter in range(config['max_iters']):
-        if iter % config['eval_interval'] == 0 or iter == config['max_iters'] - 1:
-            losses = estimate_loss(model, config['eval_iters'], train_data, val_data,
-                                   config['block_size'], config['batch_size'], config['device'])
+    for iter in range(max_iters):
+
+        # every once in a while evaluate the loss on train and val sets
+        if iter % eval_interval == 0 or iter == max_iters - 1:
+            losses = estimate_loss(model, eval_iters, train_data, val_data, block_size, batch_size, device)
             print(f"step {iter}: train loss {losses['train']:.4f}, val loss {losses['val']:.4f}")
-        xb, yb = get_batch('train', train_data, val_data, config['block_size'], config['batch_size'], config['device'])
+
+        # sample a batch of data
+        xb, yb = get_batch('train', train_data, val_data, block_size, batch_size, device)
+
+        # evaluate the loss
         logits, loss = model(xb, yb)
         optimizer.zero_grad(set_to_none=True)
         loss.backward()
         optimizer.step()
 
-def train():
-    torch.manual_seed(1337)
-    config = get_config()
-    encode, decode, vocab_size = subword_tokenizer()
-    train_data, val_data = prepare_data('../data/brittanica_clean.txt', encode)
-    model = initialize_model(vocab_size, config)
-    optimizer = initialize_optimizer(model, config['learning_rate'])
-    train_model(model, optimizer, train_data, val_data, config)
-    torch.save(model.state_dict(), "gpt.pth")
+    # generate from the model
+    context = torch.zeros((1, 1), dtype=torch.long, device=device)
+    print(decode(m.generate(context, max_new_tokens=2000, block_size=block_size)[0].tolist()))
+    
