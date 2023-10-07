@@ -3,35 +3,10 @@ This is the GPT algorithm:
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
-
-# hyperparameters
-batch_size = 16 # how many independent sequences will we process in parallel?
-block_size = 32 # what is the maximum context length for predictions?
-max_iters = 5000
-eval_interval = 100
-learning_rate = 1e-3
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-eval_iters = 200
-n_embd = 64
-n_head = 4
-n_layer = 4
-dropout = 0.0
-# ------------
-
-torch.manual_seed(1337)
-
-# wget https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt
-with open('brittanica_clean.txt', 'r', encoding='utf-8') as f:
-    text = f.read()
-
-# Train and test splits
-data = torch.tensor(encode(text), dtype=torch.long)
-n = int(0.9*len(data)) # first 90% will be train, rest val
-train_data = data[:n]
-val_data = data[n:]
+from subword_tokenizer import subword_tokenizer
 
 # data loading
-def get_batch(split):
+def get_batch(split, train_data, val_data, block_size, batch_size, device):
     # generate a small batch of data of inputs x and targets y
     data = train_data if split == 'train' else val_data
     ix = torch.randint(len(data) - block_size, (batch_size,))
@@ -41,13 +16,13 @@ def get_batch(split):
     return x, y
 
 @torch.no_grad()
-def estimate_loss():
+def estimate_loss(model, eval_iters, train_data, val_data, block_size, batch_size, device):
     out = {}
     model.eval()
     for split in ['train', 'val']:
         losses = torch.zeros(eval_iters)
         for k in range(eval_iters):
-            X, Y = get_batch(split)
+            X, Y = get_batch(split, train_data, val_data, block_size, batch_size, device)
             logits, loss = model(X, Y)
             losses[k] = loss.item()
         out[split] = losses.mean()
@@ -57,7 +32,7 @@ def estimate_loss():
 class Head(nn.Module):
     """ one head of self-attention """
 
-    def __init__(self, head_size):
+    def __init__(self, head_size, n_embd, block_size, dropout):
         super().__init__()
         self.key = nn.Linear(n_embd, head_size, bias=False)
         self.query = nn.Linear(n_embd, head_size, bias=False)
@@ -83,9 +58,9 @@ class Head(nn.Module):
 class MultiHeadAttention(nn.Module):
     """ multiple heads of self-attention in parallel """
 
-    def __init__(self, num_heads, head_size):
+    def __init__(self, num_heads, head_size, n_embd, dropout, block_size):
         super().__init__()
-        self.heads = nn.ModuleList([Head(head_size) for _ in range(num_heads)])
+        self.heads = nn.ModuleList([Head(head_size, n_embd, block_size, dropout) for _ in range(num_heads)])
         self.proj = nn.Linear(n_embd, n_embd)
         self.dropout = nn.Dropout(dropout)
 
@@ -97,7 +72,7 @@ class MultiHeadAttention(nn.Module):
 class FeedFoward(nn.Module):
     """ a simple linear layer followed by a non-linearity """
 
-    def __init__(self, n_embd):
+    def __init__(self, n_embd, dropout):
         super().__init__()
         self.net = nn.Sequential(
             nn.Linear(n_embd, 4 * n_embd),
@@ -112,12 +87,12 @@ class FeedFoward(nn.Module):
 class Block(nn.Module):
     """ Transformer block: communication followed by computation """
 
-    def __init__(self, n_embd, n_head):
+    def __init__(self, n_embd, n_head, dropout, block_size):
         # n_embd: embedding dimension, n_head: the number of heads we'd like
         super().__init__()
         head_size = n_embd // n_head
-        self.sa = MultiHeadAttention(n_head, head_size)
-        self.ffwd = FeedFoward(n_embd)
+        self.sa = MultiHeadAttention(n_head, head_size, n_embd, dropout, block_size)
+        self.ffwd = FeedFoward(n_embd, dropout)
         self.ln1 = nn.LayerNorm(n_embd)
         self.ln2 = nn.LayerNorm(n_embd)
 
@@ -129,12 +104,12 @@ class Block(nn.Module):
 # super simple bigram model
 class BigramLanguageModel(nn.Module):
 
-    def __init__(self):
+    def __init__(self, vocab_size, n_embd, block_size, n_head, n_layer, dropout):
         super().__init__()
         # each token directly reads off the logits for the next token from a lookup table
         self.token_embedding_table = nn.Embedding(vocab_size, n_embd)
         self.position_embedding_table = nn.Embedding(block_size, n_embd)
-        self.blocks = nn.Sequential(*[Block(n_embd, n_head=n_head) for _ in range(n_layer)])
+        self.blocks = nn.Sequential(*[Block(n_embd, n_head, dropout, block_size) for _ in range(n_layer)])
         self.ln_f = nn.LayerNorm(n_embd) # final layer norm
         self.lm_head = nn.Linear(n_embd, vocab_size)
 
@@ -143,6 +118,7 @@ class BigramLanguageModel(nn.Module):
 
         # idx and targets are both (B,T) tensor of integers
         tok_emb = self.token_embedding_table(idx) # (B,T,C)
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
         pos_emb = self.position_embedding_table(torch.arange(T, device=device)) # (T,C)
         x = tok_emb + pos_emb # (B,T,C)
         x = self.blocks(x) # (B,T,C)
@@ -159,7 +135,7 @@ class BigramLanguageModel(nn.Module):
 
         return logits, loss
 
-    def generate(self, idx, max_new_tokens):
+    def generate(self, idx, max_new_tokens, block_size):
         # idx is (B, T) array of indices in the current context
         for _ in range(max_new_tokens):
             # crop idx to the last block_size tokens
@@ -176,49 +152,74 @@ class BigramLanguageModel(nn.Module):
             idx = torch.cat((idx, idx_next), dim=1) # (B, T+1)
         return idx
 
-model = BigramLanguageModel()
-m = model.to(device)
-# print the number of parameters in the model
-print(sum(p.numel() for p in m.parameters())/1e6, 'M parameters')
+def get_config():
+    config = {
+        'batch_size': 16,
+        'block_size': 32,
+        'max_iters': 5000,
+        'eval_interval': 100,
+        'learning_rate': 1e-3,
+        'device': 'cuda' if torch.cuda.is_available() else 'cpu',
+        'eval_iters': 200,
+        'n_embd': 64,
+        'n_head': 4,
+        'n_layer': 4,
+        'dropout': 0.0
+    }
+    return config
 
-# create a PyTorch optimizer
-optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
+def prepare_data(file_path, encode_fn):
+    with open(file_path, 'r', encoding='utf-8') as f:
+        text = f.read()
+    data = torch.tensor(encode_fn(text), dtype=torch.long)
+    n = int(0.9*len(data))
+    return data[:n], data[n:]
 
-for iter in range(max_iters):
+def initialize_model(vocab_size, config):
+    model = BigramLanguageModel(vocab_size, config['n_embd'], config['block_size'],
+                                config['n_head'], config['n_layer'], config['dropout'])
+    model = model.to(config['device'])
+    print(f"{sum(p.numel() for p in model.parameters())/1e6} M parameters")
+    return model
 
-    # every once in a while evaluate the loss on train and val sets
-    if iter % eval_interval == 0 or iter == max_iters - 1:
-        losses = estimate_loss()
-        print(f"step {iter}: train loss {losses['train']:.4f}, val loss {losses['val']:.4f}")
+def initialize_optimizer(model, learning_rate):
+    return torch.optim.AdamW(model.parameters(), lr=learning_rate)
 
-    # sample a batch of data
-    xb, yb = get_batch('train')
+def train_model(model, optimizer, train_data, val_data, config):
+    for iter in range(config['max_iters']):
+        if iter % config['eval_interval'] == 0 or iter == config['max_iters'] - 1:
+            losses = estimate_loss(model, config['eval_iters'], train_data, val_data,
+                                   config['block_size'], config['batch_size'], config['device'])
+            print(f"step {iter}: train loss {losses['train']:.4f}, val loss {losses['val']:.4f}")
+        xb, yb = get_batch('train', train_data, val_data, config['block_size'], config['batch_size'], config['device'])
+        logits, loss = model(xb, yb)
+        optimizer.zero_grad(set_to_none=True)
+        loss.backward()
+        optimizer.step()
 
-    # evaluate the loss
-    logits, loss = model(xb, yb)
-    optimizer.zero_grad(set_to_none=True)
-    loss.backward()
-    optimizer.step()
+def train():
+    torch.manual_seed(1337)
+    config = get_config()
+    encode, decode, vocab_size = subword_tokenizer()
+    train_data, val_data = prepare_data('../data/brittanica_clean.txt', encode)
+    model = initialize_model(vocab_size, config)
+    optimizer = initialize_optimizer(model, config['learning_rate'])
+    train_model(model, optimizer, train_data, val_data, config)
+    torch.save(model.state_dict(), "gpt.pth")
 
-# generate from the model
-context = torch.zeros((1, 1), dtype=torch.long, device=device)
-print(decode(m.generate(context, max_new_tokens=2000)[0].tolist()))
-
-How would you make the model architecture better at natural language generation without making the model larger?
+How would you improve the model architecture for natural language generation without just making the model larger?
 
 YOU SAID:
-There are several ways to improve the model's performance in natural language generation without increasing its size:
+There are several ways to improve the model architecture for natural language generation without making the model larger:
 
-1. Use a pre-trained language model as an encoder: Instead of training a separate language model for each block, you can use a pre-trained language model as an encoder and fine-tune it on your dataset. This way, the model will learn to generate text that is more coherent and natural.
-2. Use attention mechanisms: The self-attention mechanism allows the model to focus on different parts of the input when generating each token. This can help the model generate more contextualized and relevant text.
-3. Use a smaller vocabulary size: Using a smaller vocabulary size can reduce the computational complexity of the model and make it easier to train, while still maintaining its ability to generate coherent text.
-4. Use a larger batch size: A larger batch size allows the model to take advantage of data parallelism and gradient accumulation, which can speed up training and improve its performance.
-5. Regularize the model: Regularization techniques such as dropout, weight decay, and adversarial training can help prevent overfitting and improve the model's generalization ability.
-6. Use a different activation function: The current model uses ReLU activation functions in the feedforward layers. However, other activation functions such as tanh or sigmoid may perform better for some tasks.
-7. Increase the number of iterations: Training the model for more iterations can help it learn more complex patterns and generate more coherent text.
-8. Use a different optimizer: The current model uses AdamW optimizer, which is a variant of the Adam optimizer that adds weight decay regularization. However, other optimizers such as SGD or Adagrad may perform better for some tasks.
-9. Use a different learning rate schedule: The current model uses a fixed learning rate throughout training. However, using a different learning rate schedule, such as a decreasing learning rate or a warm-up period, can help the model converge faster and improve its performance.
-10. Use early stopping: Early stopping is a technique where the model is trained for a fixed number of iterations and then evaluated on a validation set. If the validation loss does not improve, training is stopped to prevent overfitting.
+1. Use a smaller vocabulary size: One of the main factors that determines the size of the model is the vocabulary size. By using a smaller vocabulary size, we can reduce the number of parameters in the model. This can be done by removing rare words or stop words from the vocabulary.
+2. Use subword tokenization: Instead of using individual words as tokens, we can use subwords, which are smaller units within words. For example, instead of having separate tokens for "un-", "un", and "unbelievable", we can have a single token for "un" and then append it with different suffixes to form different words. This approach can help reduce the vocabulary size and the number of parameters in the model.
+3. Use hierarchical embedding: Instead of using a single fixed embedding layer, we can use a hierarchical embedding layer that learns multiple levels of embeddings. This allows the model to capture more complex relationships between words and reduces the need for a large number of parameters.
+4. Use attention mechanisms: Attention mechanisms allow the model to focus on specific parts of the input when generating output. By using attention, we can reduce the number of parameters in the model and improve its performance.
+5. Use sparse models: Sparse models are models that store only non-zero elements of the weight matrix. This can significantly reduce the number of parameters in the model and speed up training.
+6. Use knowledge distillation: Knowledge distillation is a technique where a small student model is trained to mimic the behavior of a larger teacher model. By using knowledge distillation, we can train a smaller model that performs similarly to a larger model.
+7. Use EMA (Exponential Moving Average) technique: EMA is a technique that helps to stabilize the training process by applying an exponentially decaying average to the model's weights. This can help to reduce the number of parameters in the model and improve its stability during training.
+8. Use layer normalization: Layer normalization is a technique that normalizes the activations of each layer, which can help to reduce the number of parameters in the model and improve its stability during training.
 
 NOW:
 Pick one of these and modify the code to implement it.
