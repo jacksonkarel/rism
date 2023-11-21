@@ -2,6 +2,7 @@ import re
 import openai
 from transformers import pipeline
 from selfmodifai.agents.fine_tunable_agents.team_agent.helpers import code_from_gpt
+from selfmodifai.helpers import openai_response
 
 
 def team_agent():
@@ -12,8 +13,7 @@ def team_agent():
             "content": "Create an artificial neural network architecture for text generation that no one has thought of yet that attempts to be very good at generalization",
         },
     ]
-    brainstorm_response = openai.ChatCompletion.create(model="gpt-3.5-turbo-1106", messages=messages)
-    brainstorm_response_content = brainstorm_response["choices"][0]["message"]["content"]
+    brainstorm_response_content = openai_response("gpt-3.5-turbo-1106", messages)
     print("Brainstorm: ", brainstorm_response_content)
 
     # Pattern to match code blocks
@@ -30,35 +30,35 @@ def team_agent():
             {"role": "user", "content": "Write the code for this in PyTorch"},
         ]
         messages += new_messages
-        engineer_response = openai.ChatCompletion.create(model="gpt-4", messages=messages)
-        engineer_response_content = engineer_response["choices"][0]["message"]["content"]
+        engineer_response_content = openai_response("gpt-4", messages)
 
         print("Engineer: ", engineer_response_content)
 
         code_files = code_from_gpt(engineer_response_content)
 
         if code_files:
-            manager_messages = [
-                {"role": "system", "content": "You are a helpful assistant."},
-                {
-                    "role": "user",
-                    "content": f"Is this code complete?",
-                },
-            ]
-
             complete_code = ""
 
             for code in code_files:
 
                 code_content = code[1]
 
+                manager_messages = [
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {
+                        "role": "user",
+                        "content": f"Is this code complete?\n{code_content}",
+                    },
+                ]
+
+                manager_response_content = openai_response("gpt-4", manager_messages)
                 classifier = pipeline("zero-shot-classification")
                 labels = [
                     "complete",
                     "incomplete",
                 ]
                 results = classifier(
-                    sequences=code_content,
+                    sequences=manager_response_content,
                     candidate_labels=labels,
                     hypothesis_template="This text says that the code is {}",
                 )

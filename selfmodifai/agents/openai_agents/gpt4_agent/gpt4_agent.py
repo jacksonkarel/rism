@@ -3,7 +3,7 @@ import re
 import json
 from transformers import pipeline
 import openai
-from selfmodifai.helpers import format_nbl, detect_non_bash_code
+from selfmodifai.non_bash import format_nbl, detect_non_bash_code
 from selfmodifai.agents.openai_agents.helpers import conv_history_to_str, update_messages
 
 
