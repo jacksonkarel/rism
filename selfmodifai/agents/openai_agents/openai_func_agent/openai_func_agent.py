@@ -1,4 +1,6 @@
-import openai
+from openai import OpenAI
+
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 import json
 from selfmodifai.agents.openai_agents.openai_manager import openai_manager
 from selfmodifai.agents.openai_agents.helpers import update_messages
@@ -19,7 +21,7 @@ def get_current_weather(location, unit="fahrenheit"):
 
 
 def openai_func_agent():
-    openai.api_key = os.environ.get("OPENAI_API_KEY")
+    
     messages_path = "./prompts/new_architecture.json"
 
     with open(messages_path) as json_file:
@@ -32,7 +34,7 @@ def openai_func_agent():
         manager_response = openai_manager(messages)
         messages.append({"role": "assistant", "content": manager_response})
 
-        response = openai.ChatCompletion.create(model="gpt-4", messages=messages)
+        response = client.chat.completions.create(model="gpt-4", messages=messages)
 
         response_content = response["choices"][0]["message"]["content"]
         print(f"Researcher: {response_content}")

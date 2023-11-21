@@ -1,4 +1,6 @@
-import openai
+from openai import OpenAI
+
+client = OpenAI()
 
 
 def openai_manager(messages):
@@ -14,7 +16,7 @@ def openai_manager(messages):
 
     messages.insert(0, {"role": "system", "content": manager_sys_prompt})
 
-    manager_response = openai.ChatCompletion.create(model="gpt-4", messages=messages)
+    manager_response = client.chat.completions.create(model="gpt-4", messages=messages)
 
     content = manager_response["choices"][0]["message"]["content"]
 

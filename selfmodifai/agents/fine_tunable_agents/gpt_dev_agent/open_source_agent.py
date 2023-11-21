@@ -1,5 +1,7 @@
 import re
-import openai
+from openai import OpenAI
+
+client = OpenAI()
 from tqdm import tqdm
 from selfmodifai.agents.fine_tunable_agents.replace_code import replace_code
 from selfmodifai.agents.fine_tunable_agents.codellama_generate import codellama_generate
@@ -31,7 +33,7 @@ def open_source_agent():
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": engineer_prompt},
     ]
-    engineer_response = openai.ChatCompletion.create(model="gpt-4", messages=gpt_api_messages)
+    engineer_response = client.chat.completions.create(model="gpt-4", messages=gpt_api_messages)
     engineer_response_content = engineer_response["choices"][0]["message"]["content"]
 
     print("GPT-4:\n", engineer_response_content)
