@@ -4,3 +4,5 @@ torch
 black
 pytype
 GitPython
+replicate
+astunparse

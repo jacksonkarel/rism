@@ -1,5 +1,4 @@
 import re
-import openai
 from transformers import pipeline
 from selfmodifai.agents.fine_tunable_agents.team_agent.helpers import code_from_gpt
 from selfmodifai.helpers import openai_response
@@ -40,7 +39,6 @@ def team_agent():
             complete_code = ""
 
             for code in code_files:
-
                 code_content = code[1]
 
                 manager_messages = [

@@ -21,7 +21,6 @@ def get_current_weather(location, unit="fahrenheit"):
 
 
 def openai_func_agent():
-    
     messages_path = "./prompts/new_architecture.json"
 
     with open(messages_path) as json_file:

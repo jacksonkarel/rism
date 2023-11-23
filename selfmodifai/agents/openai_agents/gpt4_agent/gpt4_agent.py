@@ -16,8 +16,6 @@ class Gpt4Agent:
         self.system_prompt = system_prompt
 
     def run(self):
-        
-
         messages_path = self.messages_path
 
         with open(messages_path) as json_file:
@@ -143,8 +141,7 @@ class Gpt4Agent:
 
         less_messages = [system_turn, {"role": "user", "content": full_context}]
 
-        response = client.chat.completions.create(model="gpt-4",
-        messages=less_messages)
+        response = client.chat.completions.create(model="gpt-4", messages=less_messages)
 
         print(response["choices"][0]["message"]["content"])
         print(response["usage"]["total_tokens"])

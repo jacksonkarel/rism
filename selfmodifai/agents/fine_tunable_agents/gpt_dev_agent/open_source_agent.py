@@ -8,7 +8,6 @@ from selfmodifai.agents.fine_tunable_agents.codellama_generate import codellama_
 
 
 def open_source_agent():
-
     with open("prompts/nanogpt/researcher.txt", "r") as f:
         prompt = f.read()
 
