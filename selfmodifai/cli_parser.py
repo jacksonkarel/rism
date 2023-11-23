@@ -1,5 +1,5 @@
 import argparse
-from selfmodifai.agents.open_source_agent.open_source_agent import open_source_agent
+from selfmodifai.agents.fine_tunable_agents.gpt_dev_agent.open_source_agent import open_source_agent
 from selfmodifai.agents.openai_agents.openai_func_agent.openai_func_agent import openai_func_agent
 from selfmodifai.agents.openai_agents.gpt4_agent.agents.gpt_4_training_editor_agent.agents.gpt4_te_alpaca_lora_agent import (
     gpt4_te_alapca_lora_agent,

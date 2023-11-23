@@ -2,8 +2,10 @@ import os
 import re
 import json
 from transformers import pipeline
-import openai
-from selfmodifai.helpers import format_nbl, detect_non_bash_code
+from openai import OpenAI
+
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+from selfmodifai.non_bash import format_nbl, detect_non_bash_code
 from selfmodifai.agents.openai_agents.helpers import conv_history_to_str, update_messages
 
 
@@ -14,15 +16,13 @@ class Gpt4Agent:
         self.system_prompt = system_prompt
 
     def run(self):
-        openai.api_key = os.environ.get("OPENAI_API_KEY")
-
         messages_path = self.messages_path
 
         with open(messages_path) as json_file:
             messages = json.load(json_file)
 
         while True:
-            response = openai.ChatCompletion.create(model="gpt-4", messages=messages)
+            response = client.chat.completions.create(model="gpt-4", messages=messages)
 
             print(response["usage"]["total_tokens"])
 
@@ -110,7 +110,7 @@ class Gpt4Agent:
             {"role": "user", "content": full_context},
         ]
 
-        manager_response = openai.ChatCompletion.create(model="gpt-4", messages=mananager_agent_messages)
+        manager_response = client.chat.completions.create(model="gpt-4", messages=mananager_agent_messages)
 
         print(f"Manager: {manager_response}")
 
@@ -141,10 +141,7 @@ class Gpt4Agent:
 
         less_messages = [system_turn, {"role": "user", "content": full_context}]
 
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=less_messages,
-        )
+        response = client.chat.completions.create(model="gpt-4", messages=less_messages)
 
         print(response["choices"][0]["message"]["content"])
         print(response["usage"]["total_tokens"])

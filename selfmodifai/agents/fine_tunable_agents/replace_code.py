@@ -4,17 +4,18 @@ import astunparse
 
 def create_mapping(tree):
     """
-    Traverse an AST and create a mapping for classes, functions, and simple variable assignments based on their names.
+    Traverse an AST and create a mapping for classes and functions based on their names.
     """
     mapping = {}
     for node in ast.walk(tree):
         if isinstance(node, ast.FunctionDef) or isinstance(node, ast.ClassDef):
             mapping[node.name] = node
         elif isinstance(node, ast.Assign):
-            # Handle simple variable assignments
-            for target in node.targets:
-                if isinstance(target, ast.Name):
-                    mapping[target.id] = node
+            # We assume simple assignment here. For multiple assignments,
+            # you'd need to loop over `node.targets`.
+            target = node.targets[0]
+            if isinstance(target, ast.Name):
+                mapping[target.id] = node
     return mapping
 
 
@@ -37,23 +38,29 @@ def replace_nodes(original_tree, replacement_mapping):
 
 
 def replace_code(revised_code):
-    gpt_dev_train_path = "gpt-dev/train.py"
     # Load and parse both files into ASTs
-    with open(gpt_dev_train_path, "r") as file:
+    train_path = "gpt-dev/train.py"
+    with open(train_path, "r") as file:
         original_code = file.read()
         original_tree = ast.parse(original_code)
 
     revised_tree = ast.parse(revised_code)
 
-    # Create mapping from the revised file
+    # Create mappings from both files
+    original_mapping = create_mapping(original_tree)
     replacement_mapping = create_mapping(revised_tree)
 
-    # Replace nodes in the original tree
+    # Replace nodes in the original tree and get the updated tree
     new_tree = replace_nodes(original_tree, replacement_mapping)
+
+    # Append new classes/functions/assignments not found in the original code
+    for name, node in replacement_mapping.items():
+        if name not in original_mapping:
+            new_tree.body.append(node)
 
     # Convert the modified AST back into code
     new_code = astunparse.unparse(new_tree)
 
     # Write the modified code back to a file
-    with open(gpt_dev_train_path, "w") as file:
+    with open(train_path, "w") as file:
         file.write(new_code)
