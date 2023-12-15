@@ -1,4 +1,5 @@
 import re
+import logging
 from selfmodifai.helpers import openai_response
 from selfmodifai.agents.fine_tunable_agents.team_agent.ta_engineer.ta_engineer import ta_engineer
 
@@ -19,7 +20,7 @@ def team_agent():
     contains_code = re.search(pattern, brainstorm_response_content, re.DOTALL)
 
     if contains_code:
-        print("\nBrainstorm contains code")
+        logging.info("\nBrainstorm contains code")
 
     else:
         ta_engineer(brainstorm_response_content, messages, pattern)
