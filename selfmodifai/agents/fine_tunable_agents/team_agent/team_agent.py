@@ -1,6 +1,6 @@
 import re
 import logging
-from selfmodifai.helpers import openai_response
+from selfmodifai.helpers import openai_response, new_openai_mru
 from selfmodifai.agents.fine_tunable_agents.team_agent.ta_engineer.ta_engineer import ta_engineer
 
 
@@ -23,4 +23,7 @@ def team_agent():
         logging.info("\nBrainstorm contains code")
 
     else:
-        ta_engineer(brainstorm_response_content, messages, pattern)
+        model_code, messages = ta_engineer(brainstorm_response_content, messages, pattern)
+
+        train_on_dataset_prompt = "Train a model on text from the file brittancica.txt"
+        train_on_data_ru = new_openai_mru("gpt-4", train_on_dataset_prompt, messages, "Train on dataset")

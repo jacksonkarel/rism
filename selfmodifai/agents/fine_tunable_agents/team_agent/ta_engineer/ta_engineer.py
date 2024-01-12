@@ -8,3 +8,5 @@ def ta_engineer(brainstorm_response_content, messages, pattern):
     ]
     messages += new_messages
     complete_code = complete_the_code(messages, pattern)
+
+    return complete_code, messages

@@ -22,3 +22,14 @@ def new_openai_message(message, log_title):
     response_content = openai_response("gpt-4", messages, log_title)
 
     return response_content
+
+
+def new_openai_mru(model, message, messages, log_title, update_messages=True):
+    message_data = {"role": "user", "content": message}
+    messages.append(message_data)
+    response_content = openai_response(model, messages, log_title)
+
+    if update_messages:
+        messages.append({"role": "assistant", "content": response_content})
+
+    return response_content, messages

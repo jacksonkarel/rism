@@ -4,9 +4,9 @@ from selfmodifai.agents.fine_tunable_agents.team_agent.team_agent import team_ag
 
 def main():
     # Set up logging configuration here
-    logging.basicConfig(filename='autoautoml.log', 
-        level=logging.DEBUG, 
-        format='%(asctime)s - %(levelname)s - %(message)s')
+    logging.basicConfig(
+        filename="autoautoml.log", level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
+    )
 
     team_agent()
 
