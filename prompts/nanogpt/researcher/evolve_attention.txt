@@ -1,1 +1,0 @@
-What do you think could come after the attention mechanism in the evolution of  neural networks?
