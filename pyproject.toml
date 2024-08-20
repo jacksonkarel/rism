@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "recursive-other-improvement"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+openai = "^1.41.1"
+transformers = "^4.44.0"
+torch = "^2.4.0"
+replicate = "^0.31.0"
+astunparse = "^1.6.3"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.8.0"
+pytype = "^2024.4.11"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
