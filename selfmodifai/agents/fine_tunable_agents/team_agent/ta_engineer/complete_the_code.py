@@ -52,9 +52,11 @@ def complete_the_code(messages, pattern):
                 snippets = re.findall(pattern, extract_response_content, re.DOTALL)
 
                 logging.info("Code snippets")
+                snippet_messages = []
                 for snippet in tqdm(snippets):
                     snippet_message = {"role": "user", "content": f"Finish writing this code:\n{snippet[1]}\n"}
-                    snippet_messages = messages.append(snippet_message)
+                    snippet_messages.append(snippet_message)
+
                     complete_code += complete_the_code(snippet_messages, pattern)
 
         if complete_code:

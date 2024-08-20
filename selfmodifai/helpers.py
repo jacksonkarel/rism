@@ -1,12 +1,13 @@
+import logging
 from openai import OpenAI
 
 
 def openai_response(model, messages, log_title):
     client = OpenAI()
-    response = client.chat.completions.create(model=model, messages=messages)
+    response = client.chat.completions.create(model=model, messages=messages, seed=42)
     response_content = response.choices[0].message.content
 
-    print(f"{log_title}:\n", response_content)
+    logging.info(f"Model output: {log_title}:\n{response_content}")
 
     return response_content
 
@@ -18,6 +19,7 @@ def openai_r_and_update(model, messages, log_title):
 
 
 def new_openai_message(message, log_title):
+    logging.info(f"Message for inference: {log_title}:\n{message}")
     messages = [{"role": "system", "content": "You are a helpful assistant."}, {"role": "user", "content": message}]
     response_content = openai_response("gpt-4", messages, log_title)
 

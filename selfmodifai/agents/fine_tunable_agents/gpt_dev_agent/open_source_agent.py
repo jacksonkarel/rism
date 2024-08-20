@@ -1,13 +1,13 @@
 import re
 from openai import OpenAI
 
-client = OpenAI()
 from tqdm import tqdm
 from selfmodifai.agents.fine_tunable_agents.replace_code import replace_code
 from selfmodifai.agents.fine_tunable_agents.codellama_generate import codellama_generate
 
 
 def open_source_agent():
+    client = OpenAI()
     with open("prompts/nanogpt/researcher.txt", "r") as f:
         prompt = f.read()
 
