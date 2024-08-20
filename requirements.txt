@@ -1,8 +1,0 @@
-openai
-transformers
-torch
-black
-pytype
-GitPython
-replicate
-astunparse
