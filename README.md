@@ -1,1 +1,1 @@
-# recursive-other-improvement
+# RISM: Recursive Improvement of Smaller Models

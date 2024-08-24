@@ -1,4 +1,4 @@
-from selfmodifai.agents.fine_tunable_agents.team_agent.ta_engineer.complete_the_code import complete_the_code
+from rism.agents.fine_tunable_agents.team_agent.ta_engineer.complete_the_code import complete_the_code
 
 
 def ta_engineer(brainstorm_response_content, messages, pattern):

@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "recursive-other-improvement"
+name = "rism"
 version = "0.1.0"
 description = ""
-authors = ["Your Name <you@example.com>"]
+authors = ["Jackson Karel <jackson.karel2@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 

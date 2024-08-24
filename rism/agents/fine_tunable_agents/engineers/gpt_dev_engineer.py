@@ -1,4 +1,4 @@
-from selfmodifai.agents.fine_tunable_agents.codellama_generate import codellama_generate
+from rism.agents.fine_tunable_agents.codellama_generate import codellama_generate
 
 
 def gpt_dev_engineer():

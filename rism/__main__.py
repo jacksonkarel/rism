@@ -1,5 +1,5 @@
 import logging
-from selfmodifai.agents.fine_tunable_agents.team_agent.team_agent import team_agent
+from rism.agents.fine_tunable_agents.team_agent.team_agent import team_agent
 
 
 def main():

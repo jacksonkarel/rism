@@ -1,7 +1,7 @@
 import re
 import logging
-from selfmodifai.helpers import openai_response, new_openai_mru
-from selfmodifai.agents.fine_tunable_agents.team_agent.ta_engineer.ta_engineer import ta_engineer
+from rism.helpers import openai_response, new_openai_mru
+from rism.agents.fine_tunable_agents.team_agent.ta_engineer.ta_engineer import ta_engineer
 
 
 def team_agent():

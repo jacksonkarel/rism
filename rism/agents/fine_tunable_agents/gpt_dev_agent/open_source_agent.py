@@ -2,8 +2,8 @@ import re
 from openai import OpenAI
 
 from tqdm import tqdm
-from selfmodifai.agents.fine_tunable_agents.replace_code import replace_code
-from selfmodifai.agents.fine_tunable_agents.codellama_generate import codellama_generate
+from rism.agents.fine_tunable_agents.replace_code import replace_code
+from rism.agents.fine_tunable_agents.codellama_generate import codellama_generate
 
 
 def open_source_agent():

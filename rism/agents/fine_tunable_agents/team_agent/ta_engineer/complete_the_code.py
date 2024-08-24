@@ -2,8 +2,8 @@ import re
 import logging
 from transformers import pipeline
 from tqdm import tqdm
-from selfmodifai.agents.fine_tunable_agents.team_agent.helpers import code_from_gpt
-from selfmodifai.helpers import openai_response, openai_r_and_update, new_openai_message
+from rism.agents.fine_tunable_agents.team_agent.helpers import code_from_gpt
+from rism.helpers import openai_response, openai_r_and_update, new_openai_message
 
 
 def complete_the_code(messages, pattern):
